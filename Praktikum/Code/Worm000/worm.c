@@ -81,16 +81,16 @@ int main(void) {
         int start_col = (COLS/2) - (msg_len/2);
 
         // Write letter A to the top    left  corner of our display
-        move(1, 1);          // Move to position
+        move(0, 0);          // Move to position
         addch('A');    // Put character there
 
         // Write letter B to the top    right corner of our display
         // Use combination of move() and addch() functions
-        mvaddch(1, (COLS-1), 'B');
+        mvaddch(0, (COLS-1), 'B');
         // Write letter C to the bottom right corner of our display
         mvaddch((LINES-1), (COLS-1), 'C');
         // Write letter D to the bottom left  corner of our display
-        mvaddch((LINES-1), 1, 'D');
+        mvaddch((LINES-1), 0, 'D');
  
         // Write our message centered onto the display
         mvprintw(mid_row, start_col,"Das Fenster hat %3d Zeilen und %3d Spalten", LINES, COLS);
