@@ -83,7 +83,8 @@ int theworm_headpos_x;  // x-coordinate of the worm's head
 int theworm_dx;
 int theworm_dy;
 
-int theworm_wcolor = COLP_USER_WORM; 
+enum ColorPairs theworm_wcolor;
+//int theworm_wcolor = COLP_USER_WORM; 
 
 // ********************************************************************************************
 // Forward declarations of functions
