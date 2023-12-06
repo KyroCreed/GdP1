@@ -15,37 +15,20 @@
 #include <time.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "prep.h"
 #include "worm.h"
 #include "worm_model.h"
 #include "board_model.h"
 
-
-// ********************************************************************************************
-// Constants, data structures
-// ********************************************************************************************
-
-#define TRUE 1
-#define FALSE 0
-
-
-
-// ********************************************************************************************
 // Forward declarations of functions
 // ********************************************************************************************
-// This avoids problems with the sequence of function declarations inside the code.
-// Note: this kind of problem is solved by header files later on!
 
 // Management of the game
 void initializeColors();
 void readUserInput(enum GameStates* agame_state );
 enum ResCodes doLevel();
 
-// ********************************************************************************************
-// Functions
-// ********************************************************************************************
-
-// ************************************
 // Management of the game
 // ************************************
 
