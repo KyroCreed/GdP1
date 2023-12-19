@@ -19,10 +19,10 @@
 // *************************************************
 
 // Place an item onto the curses display.
-void placeItem(int y, int x, chtype symbol, enum ColorPairs color_pair) {
+void placeItem(struct pos new_headpos,  chtype symbol, enum ColorPairs color_pair) {
 
     //  Store item on the display (symbol code)
-    move(y, x);                         // Move cursor to (y,x)
+    move(new_headpos.y,new_headpos.x);                         // Move cursor to (y,x)
     attron(COLOR_PAIR(color_pair));     // Start writing in selected color
     addch(symbol);         // Store symbol on the virtual display
     attroff(COLOR_PAIR(color_pair));    // Stop writing in selected color
@@ -32,7 +32,7 @@ void placeItem(int y, int x, chtype symbol, enum ColorPairs color_pair) {
 
 // Get the last usable row on the display
 int getLastRow() {
-    return LINES-1;
+    return LINES-1-ROWS_RESERVED;
 }
 
 // Get the last usable column on the display
