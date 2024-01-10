@@ -202,6 +202,8 @@ enum ResCodes doLevel() {
         res_code = RES_INTERNAL_ERROR;
     }
 
+    cleanupBoard(&theboard);
+
     // Normal exit point
     return res_code; 
 }
@@ -211,6 +213,8 @@ enum ResCodes doLevel() {
 // ********************************************************************************************
 
 int main(void) {
+    getchar();
+    printf("Worm.c funktioniert");
     enum ResCodes res_code;         // Result code from functions
 
     // Here we start

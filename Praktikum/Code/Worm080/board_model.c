@@ -26,7 +26,7 @@ enum ResCodes initializeBoard(struct board *aboard) {
   aboard->last_row = LINES - ROWS_RESERVED - 1;
   // Maximal index of a column
   aboard->last_col = COLS - 1;
-
+  
   // Check dimensions of the board
   if (aboard->last_col < MIN_NUMBER_OF_COLS -1 || aboard->last_row < MIN_NUMBER_OF_ROWS - 1) {
     char buf[100];
@@ -36,17 +36,21 @@ enum ResCodes initializeBoard(struct board *aboard) {
   }
   // Allocate memory for 2-dimensional array of cells
   // Alloc array of rows 
+  printf("@001");
   aboard->cells = (enum BoardCodes **) malloc(LINES * sizeof(enum BoardCodes *));
   if (aboard->cells == NULL) {
     showDialog("Abbruch: Zu wenig Speicher", "Bitte eine Taste druecken");
-    exit(RES_FAILED); // No memory -> direct exit
+    return RES_FAILED; // No memory -> direct exit
   }
-  for (y = 0; y <= aboard -> last_row; y++) {
+  printf("@002");
+  for (y = 0; y <= LINES; y++) {
     // Allocate array of columns for each y
+    printf("@003");
     aboard->cells[y] = (enum BoardCodes *) malloc(COLS * sizeof(enum BoardCodes ));
     if (aboard->cells[y] == NULL) {
+      printf("@004");
       showDialog("Abbruch: Zu wenig Speicher", "Bitte eine Taste druecken");
-      exit(RES_FAILED); // No memory -> direct exit
+      return RES_FAILED; // No memory -> direct exit
     }
   }
   return RES_OK;

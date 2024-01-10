@@ -42,8 +42,8 @@ enum ResCodes initializeWorm(struct worm* aworm, int len_max, int len_cur,
   // This allows for the effect that the worm appears element by element at the start of each level
 
   for (i = 0; i <= aworm -> maxindex; i++){
-    aworm -> wormpos[i].y = UNUSED_POS_ELEM;
-    aworm -> wormpos[i].x = UNUSED_POS_ELEM;
+    aworm -> wormpos[i].y = len_cur;
+    aworm -> wormpos[i].x = 1;
     }
 
     // Initialize position of worms head
