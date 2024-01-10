@@ -11,6 +11,8 @@
 #include "worm.h"
 #include "board_model.h"
 #include "worm_model.h"
+#include <stdlib.h>
+#include "messages.h"
 
 // The worm model
 // ********************************************************************************************
@@ -37,6 +39,15 @@ enum ResCodes initializeWorm(struct worm* aworm, int len_max, int len_cur,
 
   //Initialize headindex
   aworm -> headindex = 0;
+
+  // Initialize the array for element positons
+  // Allocate an array of the worms length
+  aworm -> wormpos = malloc(len_max * sizeof(struct pos));
+
+  if (aworm->wormpos == NULL) {
+    showDialog("Abbruch: Zu wenig Speicher", "Bitte eine Taste druecken");
+    exit(RES_FAILED); // No memory -> direct exit
+  }
 
   // Mark all elements as unused in the arrays of positions
   // This allows for the effect that the worm appears element by element at the start of each level
@@ -117,7 +128,8 @@ extern void cleanWormTail(struct board* aboard, struct worm* aworm) {
 }
 
 extern void moveWorm(struct board* aboard, struct worm* aworm, enum GameStates* agame_state) {
-   struct pos headpos = aworm -> wormpos[aworm -> headindex];
+    //struct pos headpos;
+    struct pos headpos = aworm -> wormpos[aworm -> headindex];
 
     // Get the current position of the worm's head element and
     // compute the new head position according to current heading.
@@ -216,5 +228,22 @@ extern void setWormHeading(struct worm* aworm, enum WormHeading dir) {
             break;
     }
 }
+
+void cleanupWorm(struct worm* aworm) {
+  // free array of wormpos
+  free(aworm->wormpos);
+}
+
+// Remove a worm from the board and clean the display
+void removeWorm(struct board* aboard, struct worm* aworm) {
+  int i;
+  i = aworm -> headindex;
+  do {
+    placeItem(aboard, aworm -> wormpos[i].y, aworm -> wormpos[i].x, BC_FREE_CELL, SYMBOL_FREE_CELL, COLP_FREE_CELL);
+    // Advance index; go round after aworm -> cur_lastindex
+    i = (i - 1);
+  } while (i != 0);
+}
+
 // END WORM_DETAIL
 // ********************************************************************************************

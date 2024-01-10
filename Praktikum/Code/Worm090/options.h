@@ -20,6 +20,7 @@ struct game_options
 {
     int nap_time;               // Time in milliseconds to sleep at the end of level loop
     bool start_single_step;     // Start game in single step mode
+    char * start_level_filename;
 };
 
 extern void usage();

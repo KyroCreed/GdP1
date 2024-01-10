@@ -82,18 +82,14 @@ void readUserInput(struct worm* aworm, enum GameStates* agame_state ) {
     return;
 }
 
-enum ResCodes doLevel(struct game_options* somegops) {
+enum ResCodes doLevel(struct game_options* somegops, enum GameStates* agame_state, char* level_filename) {
     struct worm userworm; // Local variable for storing the user's worm
     struct board theboard;
-    enum GameStates game_state; // The current game_state
 
     enum ResCodes res_code; // Result code from functions
     int end_level_loop;    // Indicates whether we should leave the main loop
 
     struct pos bottomLeft;  // Start positions of the worm
-
-    // At the beginnung of the level, we still have a chance to win
-    game_state = WORM_GAME_ONGOING;
 
     // Setup the board
     res_code = initializeBoard(&theboard);
@@ -102,7 +98,7 @@ enum ResCodes doLevel(struct game_options* somegops) {
     }
 
     // Initialize the current level
-    res_code = initializeLevel(&theboard);
+    res_code = initializeLevelFromFile(&theboard, level_filename);
     if (res_code != RES_OK) {
       return res_code;
     }
@@ -112,7 +108,7 @@ enum ResCodes doLevel(struct game_options* somegops) {
     bottomLeft.y =  getLastRowOnBoard(&theboard);
     bottomLeft.x =  0;
  
-    res_code = initializeWorm(&userworm, WORM_LENGTH, WORM_INITIAL_LENGTH, bottomLeft, WORM_RIGHT, COLP_USER_WORM);
+    res_code = initializeWorm(&userworm, (theboard.last_row + 1) * (theboard.last_col + 1), WORM_INITIAL_LENGTH, bottomLeft, WORM_RIGHT, COLP_USER_WORM);
     if ( res_code !=  RES_OK) {
         return res_code;
     }
@@ -126,8 +122,8 @@ enum ResCodes doLevel(struct game_options* somegops) {
     end_level_loop = false; // Flag for controlling the main loop
     while(!end_level_loop) {
         // Process optional user input
-        readUserInput(&userworm, &game_state); 
-        if ( game_state == WORM_GAME_QUIT ) {
+        readUserInput(&userworm, agame_state); 
+        if ( *agame_state == WORM_GAME_QUIT ) {
             end_level_loop = true;
             continue; // Go to beginning of the loop's block and check loop condition
         }
@@ -136,10 +132,10 @@ enum ResCodes doLevel(struct game_options* somegops) {
         // Clean the tail of the worm
         cleanWormTail(&theboard, &userworm);
         // Now move the worm for one step
-        moveWorm(&theboard, &userworm, &game_state);
+        moveWorm(&theboard, &userworm, agame_state);
         
         // Bail out of the loop if something bad happened
-        if ( game_state !=  WORM_GAME_ONGOING ) {
+        if ( *agame_state !=  WORM_GAME_ONGOING ) {
             end_level_loop = true;
             continue; // Go to beginning of the loop's block and check loop condition
         }
@@ -169,7 +165,7 @@ enum ResCodes doLevel(struct game_options* somegops) {
 
     // For some reason we left the control loop of the current level.
     // Check why according to game_state
-    switch (game_state) {
+    switch (*agame_state) {
       case WORM_GAME_ONGOING:
         if (getNumberOfFoodItems(&theboard) == 0) {
           showDialog("Runde erfolgreich beendet!", "Bitte Taste drücken");
@@ -203,18 +199,35 @@ enum ResCodes doLevel(struct game_options* somegops) {
         res_code = RES_INTERNAL_ERROR;
     }
 
-    cleanupBoard(&theboard);
-
     // Normal exit point
+    
+    // remove the worm from display and board
+    removeWorm(&theboard, &userworm);
+    // Because initialize Worm allocates memory
+    cleanupWorm(&userworm);
+
+    cleanupBoard(&theboard);
     return res_code; 
 }
 
 enum ResCodes playGame(int argc, char* argv[]) {
   enum ResCodes res_code; // Result code from functions
+  enum GameStates game_state; // The current game_state
+  // An array of filenames for level descriptions
+  // The list must be terminated by a NULL pointer!
+  char* level_list[] = {
+    "basic.level.1",
+    "squaredance.level.2",
+    "pirates-doom.level.3",
+    NULL
+  };
+  int cur_level = 0;  // The current level
+
   struct game_options thegops; // For options passed on the command line
 
   // Read the command line options
   res_code = readCommandLineOptions(&thegops, argc, argv);
+  
   if (res_code != RES_OK) {
     return res_code; // Error: leave early
   }
@@ -224,7 +237,30 @@ enum ResCodes playGame(int argc, char* argv[]) {
   }
 
   //Play the game
-  res_code = doLevel(&thegops);
+  // At the beginnung of the level, we still have a chance to win
+  game_state = WORM_GAME_ONGOING;
+  if(thegops.start_level_filename != NULL) {
+    // User provided a filename on the command line.
+    // Play only this level
+    res_code = doLevel(&thegops, &game_state, thegops.start_level_filename);
+    
+    // From here on we no longer need thegops.start_level_filename
+    // Free the memory allocated by strdup in options.c
+    free(thegops.start_level_filename);
+  
+  } else {
+    // Play standard level
+    while (level_list[cur_level] != NULL && res_code == RES_OK && game_state == WORM_GAME_ONGOING) {
+    res_code = doLevel(&thegops, &game_state, level_list[cur_level]);
+    if (res_code != RES_OK) {
+      return res_code;
+    }
+    cur_level++;
+  }
+  if(level_list[cur_level] == NULL && game_state == WORM_GAME_ONGOING) {
+     showDialog("Du hast alle Level geschafft!", "Bitte druecke eine Taste");
+    } 
+  }
   return res_code;
 }
 // ********************************************************************************************

@@ -20,7 +20,6 @@
 #define UNUSED_POS_ELEM -1  // Unused element in the worm arrays of positions
 
 // Dimensions and bounds
-#define WORM_LENGTH (MIN_NUMBER_OF_ROWS * MIN_NUMBER_OF_COLS) // Max length of a worm
 #define WORM_INITIAL_LENGTH 4  // Initial length of the user's worm
 
 // Boni for eating food
@@ -39,7 +38,7 @@ struct worm
     int headindex;     // An index into the array for the head position of the worm
     // 0 <= headindex <= maxindex
 
-    struct pos wormpos[WORM_LENGTH]; // Array of x,y positions of all elements of the worm
+    struct pos* wormpos; // Array of x,y positions of all elements of the worm
 
     // The current heading of the worm
     // These are offsets from the set {-1,0,+1}
@@ -64,6 +63,8 @@ extern void growWorm(struct worm* aworm, enum Boni growth);
 extern void showWorm(struct board* aboard, struct worm* aworm);
 extern void cleanWormTail(struct board* aboard, struct worm* aworm);
 extern void moveWorm(struct board* aboard, struct worm* aworm, enum GameStates* agame_state);
+extern void cleanupWorm(struct worm* aworm);
+extern void removeWorm(struct board* aboard, struct worm* aworm);
 
 // Getters
 extern struct pos getWormHeadPos(struct worm* aworm);

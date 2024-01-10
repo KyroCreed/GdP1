@@ -53,6 +53,7 @@ extern enum ResCodes initializeBoard(struct board* aboard);
 extern void placeItem(struct board* aboard, int y, int x, enum BoardCodes board_code,
                chtype symbol, enum ColorPairs color_pair);
 extern void cleanupBoard(struct board* aboard);
+extern enum ResCodes initializeLevelFromFile(struct board* aboard, const char* filename);
 extern enum ResCodes initializeLevel(struct board* aboard);
 
 // Getters
