@@ -21,6 +21,7 @@
 #include "worm.h"
 #include "worm_model.h"
 #include "board_model.h"
+#include "options.h"
 
 // Forward declarations of functions
 // ********************************************************************************************
@@ -81,7 +82,7 @@ void readUserInput(struct worm* aworm, enum GameStates* agame_state ) {
     return;
 }
 
-enum ResCodes doLevel() {
+enum ResCodes doLevel(struct game_options* somegops) {
     struct worm userworm; // Local variable for storing the user's worm
     struct board theboard;
     enum GameStates game_state; // The current game_state
@@ -150,7 +151,7 @@ enum ResCodes doLevel() {
         showStatus(&theboard, &userworm);
 
         // Sleep a bit before we show the updated window
-        napms(NAP_TIME);
+        napms(somegops->nap_time);
 
         // Display all the updates
         refresh();
@@ -208,13 +209,30 @@ enum ResCodes doLevel() {
     return res_code; 
 }
 
+enum ResCodes playGame(int argc, char* argv[]) {
+  enum ResCodes res_code; // Result code from functions
+  struct game_options thegops; // For options passed on the command line
+
+  // Read the command line options
+  res_code = readCommandLineOptions(&thegops, argc, argv);
+  if (res_code != RES_OK) {
+    return res_code; // Error: leave early
+  }
+
+  if (thegops.start_single_step) {
+    nodelay(stdscr, FALSE); // make getch to be a blocking call
+  }
+
+  //Play the game
+  res_code = doLevel(&thegops);
+  return res_code;
+}
 // ********************************************************************************************
 // MAIN
 // ********************************************************************************************
 
-int main(void) {
+int main(int argc, char* argv[]) {
     getchar();
-    printf("Worm.c funktioniert");
     enum ResCodes res_code;         // Result code from functions
 
     // Here we start
@@ -235,7 +253,7 @@ int main(void) {
                 MIN_NUMBER_OF_COLS, MIN_NUMBER_OF_ROWS );
         res_code = RES_FAILED;
     } else {
-        res_code = doLevel();
+        res_code = playGame(argc, argv);
         cleanupCursesApp();
     }
 
